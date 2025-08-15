@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { AnimatedBackground } from '../AnimatedBackground'
+import { WalletIcon } from '../Icons/WalletIcon'
 
 interface LoginProps {
   onToggleMode: () => void
@@ -39,8 +40,8 @@ export const Login: React.FC<LoginProps> = ({ onToggleMode }) => {
       <AnimatedBackground />
       <div className="max-w-md w-full space-y-8 relative z-10">
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl backdrop-blur-sm">
-            <span className="text-white text-3xl">💰</span>
+          <div className="mx-auto w-20 h-20 flex items-center justify-center">
+            <WalletIcon size={80} />
           </div>
           <h2 className="mt-8 text-4xl font-bold text-white tracking-tight">
             Bienvenido

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { AnimatedBackground } from '../AnimatedBackground'
+import { CheckIcon } from '../Icons/CheckIcon'
+import { UserIcon } from '../Icons/UserIcon'
 
 interface RegisterProps {
   onToggleMode: () => void
@@ -54,8 +56,8 @@ export const Register: React.FC<RegisterProps> = ({ onToggleMode }) => {
         <AnimatedBackground />
         <div className="max-w-md w-full space-y-8 relative z-10">
           <div className="text-center">
-            <div className="mx-auto h-16 w-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-2xl backdrop-blur-sm">
-              <span className="text-white text-3xl">✓</span>
+            <div className="mx-auto w-20 h-20 flex items-center justify-center">
+              <CheckIcon size={80} />
             </div>
             <h2 className="mt-8 text-4xl font-bold text-white tracking-tight">
               ¡Cuenta Creada!
@@ -86,8 +88,8 @@ export const Register: React.FC<RegisterProps> = ({ onToggleMode }) => {
       <AnimatedBackground />
       <div className="max-w-md w-full space-y-8 relative z-10">
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-2xl backdrop-blur-sm">
-            <span className="text-white text-3xl">💰</span>
+          <div className="mx-auto w-20 h-20 flex items-center justify-center">
+            <UserIcon size={80} />
           </div>
           <h2 className="mt-8 text-4xl font-bold text-white tracking-tight">
             Crear Cuenta
