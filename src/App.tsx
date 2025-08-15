@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from 'react'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { Login } from './components/Auth/Login'
+import { Register } from './components/Auth/Register'
 import { GastoForm } from './components/GastoForm'
 import { GastoList } from './components/GastoList'
 import { Dashboard } from './components/Dashboard'
 import { gastosService, Gasto } from './lib/supabase'
-// import './App.css'  // Comentado porque usamos Tailwind
+//import './App.css'
 
-function App() {
+// Componente principal de la aplicación (cuando el usuario está autenticado)
+const AuthenticatedApp: React.FC = () => {
   const [gastos, setGastos] = useState<Gasto[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<'dashboard' | 'agregar' | 'lista'>('dashboard')
 
+  const { user, signOut } = useAuth()
+
   // Cargar gastos al iniciar
   useEffect(() => {
-    loadGastos()
-  }, [])
+    if (user) {
+      loadGastos()
+    }
+  }, [user])
 
   const loadGastos = async () => {
     try {
@@ -24,34 +32,8 @@ function App() {
       setError('')
     } catch (err) {
       console.error('Error cargando gastos:', err)
-      setError('Error al cargar los gastos. Verifica la configuración de Supabase.')
-      // Datos de ejemplo para desarrollo
-      setGastos([
-        {
-          id: 1,
-          nombre: 'Supermercado',
-          fecha: '2025-08-15',
-          valor: 45000,
-          categoria: 'Alimentación',
-          descripcion: 'Compras de la semana'
-        },
-        {
-          id: 2,
-          nombre: 'Gasolina',
-          fecha: '2025-08-14',
-          valor: 60000,
-          categoria: 'Transporte',
-          descripcion: 'Tanqueada completa'
-        },
-        {
-          id: 3,
-          nombre: 'Internet',
-          fecha: '2025-08-13',
-          valor: 89000,
-          categoria: 'Servicios',
-          descripcion: 'Pago mensual'
-        }
-      ])
+      setError('Error al cargar los gastos.')
+      setGastos([])
     } finally {
       setLoading(false)
     }
@@ -70,6 +52,13 @@ function App() {
     setGastos(prev => prev.map(gasto => 
       gasto.id === gastoActualizado.id ? gastoActualizado : gasto
     ))
+  }
+
+  const handleSignOut = async () => {
+    const { error } = await signOut()
+    if (error) {
+      console.error('Error al cerrar sesión:', error)
+    }
   }
 
   const tabs = [
@@ -97,16 +86,26 @@ function App() {
           <div className="flex justify-between items-center py-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">💰 Mis Gastos</h1>
-              <p className="text-sm text-gray-600">Controla tus finanzas personales</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Total registrado</p>
-              <p className="text-xl font-bold text-red-600">
-                {new Intl.NumberFormat('es-CO', {
-                  style: 'currency',
-                  currency: 'COP'
-                }).format(gastos.reduce((sum, gasto) => sum + gasto.valor, 0))}
+              <p className="text-sm text-gray-600">
+                Bienvenido, {user?.email}
               </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Total registrado</p>
+                <p className="text-xl font-bold text-red-600">
+                  {new Intl.NumberFormat('es-CO', {
+                    style: 'currency',
+                    currency: 'COP'
+                  }).format(gastos.reduce((sum, gasto) => sum + gasto.valor, 0))}
+                </p>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Cerrar Sesión
+              </button>
             </div>
           </div>
         </div>
@@ -145,18 +144,19 @@ function App() {
       {/* Error Alert */}
       {error && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <span className="text-yellow-500">⚠️</span>
+                <span className="text-red-500">⚠️</span>
               </div>
               <div className="ml-3">
-                <p className="text-sm">
-                  {error}
-                </p>
-                <p className="text-xs mt-1">
-                  Mostrando datos de ejemplo. Configura Supabase para guardar datos reales.
-                </p>
+                <p className="text-sm">{error}</p>
+                <button 
+                  onClick={loadGastos}
+                  className="text-xs mt-1 underline hover:no-underline"
+                >
+                  Intentar de nuevo
+                </button>
               </div>
             </div>
           </div>
@@ -184,7 +184,7 @@ function App() {
       <footer className="bg-white border-t mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="text-center text-sm text-gray-500">
-            <p>💰 Gestor de Gastos Personales</p>
+            <p>💰 Gestor de Gastos Personales - {user?.email}</p>
             <p className="mt-1">
               {gastos.length > 0 ? (
                 <>Último registro: {new Date(gastos[0].fecha).toLocaleDateString('es-CO')}</>
@@ -197,6 +197,44 @@ function App() {
       </footer>
     </div>
   )
+}
+
+// Componente de autenticación (login/registro)
+const AuthComponent: React.FC = () => {
+  const [isLogin, setIsLogin] = useState(true)
+
+  return isLogin ? (
+    <Login onToggleMode={() => setIsLogin(false)} />
+  ) : (
+    <Register onToggleMode={() => setIsLogin(true)} />
+  )
+}
+
+// Componente principal de la App
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  )
+}
+
+// Contenido principal que decide qué mostrar según el estado de autenticación
+const AppContent: React.FC = () => {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verificando autenticación...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return user ? <AuthenticatedApp /> : <AuthComponent />
 }
 
 export default App

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
+// Estas las obtienes de tu proyecto Supabase
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL!
 const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY!
 
@@ -13,6 +14,7 @@ export type Gasto = {
   valor: number
   categoria?: string
   descripcion?: string
+  user_id?: string
   created_at?: string
 }
 
@@ -31,9 +33,18 @@ export const gastosService = {
 
   // Crear nuevo gasto
   async create(gasto: Omit<Gasto, 'id' | 'created_at'>) {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) throw new Error('Usuario no autenticado')
+    
+    const gastoWithUser = {
+      ...gasto,
+      user_id: user.id
+    }
+    
     const { data, error } = await supabase
       .from('gastos')
-      .insert([gasto])
+      .insert([gastoWithUser])
       .select()
     
     if (error) throw error
