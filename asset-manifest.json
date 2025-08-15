@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "https://encantorosa.info/static/css/main.ea1c6c2d.css",
+    "main.js": "https://encantorosa.info/static/js/main.fdc4cf7f.js",
+    "static/js/453.d36bb9de.chunk.js": "https://encantorosa.info/static/js/453.d36bb9de.chunk.js",
+    "index.html": "https://encantorosa.info/index.html",
+    "main.ea1c6c2d.css.map": "https://encantorosa.info/static/css/main.ea1c6c2d.css.map",
+    "main.fdc4cf7f.js.map": "https://encantorosa.info/static/js/main.fdc4cf7f.js.map",
+    "453.d36bb9de.chunk.js.map": "https://encantorosa.info/static/js/453.d36bb9de.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ea1c6c2d.css",
+    "static/js/main.fdc4cf7f.js"
+  ]
+}
